@@ -9,7 +9,7 @@ class ClassDef
 public:
 	void add(FieldType* t);
 	FieldType* get(string id);
-	ClassDef(string id,vector<FieldType*> bucket)
+	ClassDef(string id,vector<FieldType*>* bucket)
 	:_id(id),_bucket(bucket){}
 	string getId() {return _id;}
 	~ClassDef();

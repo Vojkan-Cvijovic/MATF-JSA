@@ -3,11 +3,14 @@
 using namespace std;
 
 void ClassDef::add(FieldType* t){
-	bucket.push_back(t);
+	_bucket->push_back(t);
 }
 FieldType* ClassDef::get(string id){
-	
-	for(auto iterator = _bucket.begin(); iterator != _bucket.end(); ++iterator){
+	if(_bucket == nullptr){
+		cerr << "_bucket is nullptr" << endl;
+		return nullptr;
+	}
+	for(auto iterator = _bucket->begin(); iterator != _bucket->end(); ++iterator){
 		if(!id.compare((*iterator)->getId()))
 			return *iterator;
 	}

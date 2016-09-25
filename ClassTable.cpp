@@ -3,7 +3,7 @@
 using namespace std;
 
 void ClassTable::add(ClassDef* cd){
-	bucket.push_back(cd);
+	_bucket.push_back(cd);
 }
 ClassDef* ClassTable::get(string className){
 	for(auto iterator = _bucket.begin(); iterator != _bucket.end(); ++iterator){

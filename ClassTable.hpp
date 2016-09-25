@@ -8,13 +8,13 @@ using namespace std;
 class ClassTable
 {
 public:
-	ClassTable(vector<ClassDef*>* bucket)
+	ClassTable()
 	:_bucket(bucket){}
 	~ClassTable();
 	void add(ClassDef* cd);
 	ClassDef* get(string className);
 private:
-	vector<ClassDef*>* _bucket;
+	vector<ClassDef*> _bucket;
 };
 
 
