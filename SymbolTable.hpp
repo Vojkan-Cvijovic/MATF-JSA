@@ -1,6 +1,6 @@
 #ifndef __SYMBOLTABLE_HPP__
 #define __SYMBOLTABLE_HPP__
-#include "type.hpp"
+#include "Type.hpp"
 #include <vector>
 using namespace std;
 

@@ -9,6 +9,7 @@ Type* SymbolTable::get(string id){
 		if(!id.compare((*iterator)->getId()))
 			return *iterator;
 	}
+	cout << "Error: Variable "<< id << " is not defined" << endl;
 	return nullptr;
 }
 void SymbolTable::init(){
