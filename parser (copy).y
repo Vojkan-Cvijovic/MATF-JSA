@@ -69,7 +69,7 @@ Method: int_token id_token '(' ')' '{' Method_block '}'         { /*$$ = new Int
 |       string_token id_token '(' ')' '{' Method_block '}'      { /*$$ = new StringType($2);*/ }
 |       void_token id_token '(' ')' '{' Method_block '}'        { /*$$ = new VoidType($2);*/   }
 ;
-Method_block: return_token id_token '(' ')' ';'  {/* Nadjemo type u methodTable i vratimo   */}
+Method_block: Method_block return_token id_token '(' ')' ';'  {/* Nadjemo type u methodTable i vratimo   */}
 |   return_token id_token ';'                   { /* Nadjemo u symbolTable i vratimo tip */   }
 |   Inicijalizacija ';'    {/*$$ = nullptr;*/}
 |   Dodela ';'            {/*$$ = nullptr;*/}

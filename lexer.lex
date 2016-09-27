@@ -4,7 +4,14 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include "ClassTable.hpp"
+#include "SymbolTable.hpp"
+#include "ClassDef.hpp"
+#include "MethodTable.hpp"
+#include "FieldType.hpp"
+#include "Type.hpp"
 #include "parser.tab.hpp"
+
 using namespace std;
 
 %}

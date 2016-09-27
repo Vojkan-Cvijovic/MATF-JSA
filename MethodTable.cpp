@@ -9,7 +9,7 @@ void MethodTable::add(Type* t){
 }
 Type* MethodTable::get(string id){
 
-	for(auto iterator = bucket.rbegin(); *iterator != *bucket.rend(); ++iterator){
+	for(auto iterator = bucket.rbegin(); iterator != bucket.rend(); ++iterator){
 		if(*iterator == nullptr){
 			cerr << "iterator in MethodTable is null " << endl;
 		}

@@ -1,5 +1,6 @@
 #ifndef __CLASSDEF_HPP__
 #define __CLASSDEF_HPP__ 
+
 #include "FieldType.hpp"
 #include <iostream>
 #include <vector>

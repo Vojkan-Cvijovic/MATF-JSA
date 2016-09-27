@@ -23,4 +23,4 @@ ClassDef.o: ClassDef.cpp ClassDef.hpp FieldType.hpp Type.hpp
 .PHONY: clean
 
 clean:
-	rm -rf *~ *tab* lex.yy.* *.o pseudokod *.output
+	rm -rf *~ *tab* lex.yy.* *.o analizator *.output
