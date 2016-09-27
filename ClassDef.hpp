@@ -1,21 +1,20 @@
-#ifndef __CLASSDEF_HPP
-#define __CLASSDEF_HPP 
+#ifndef __CLASSDEF_HPP__
+#define __CLASSDEF_HPP__ 
 #include "FieldType.hpp"
-
-using namespace std;
-
+#include <iostream>
+#include <vector>
 class ClassDef
 {
 public:
 	void add(FieldType* t);
-	FieldType* get(string id);
-	ClassDef(string id,vector<FieldType*>* bucket)
+    FieldType* get(std::string id);
+    ClassDef(std::string id,std::vector<FieldType*>* bucket)
 	:_id(id),_bucket(bucket){}
-	string getId() {return _id;}
+	std::string getId() {return _id;}
 	~ClassDef();
 private:
-	vector<FieldType*>* _bucket;
-	string _id;	
+    std::vector<FieldType*>* _bucket;
+    std::string _id;	
 };
 
 #endif

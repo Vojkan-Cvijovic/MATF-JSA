@@ -1,5 +1,6 @@
 #include "ClassDef.hpp"
-
+#include <string>
+#include <vector>
 using namespace std;
 
 void ClassDef::add(FieldType* t){

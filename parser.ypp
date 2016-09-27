@@ -1,0 +1,94 @@
+%{
+#include <iostream>
+#include <string>
+#include <vector>
+#include "ClassTable.hpp"
+#include "SymbolTable.hpp"
+#include "ClassDef.hpp"
+#include "MethodTable.hpp"
+#include "FieldType.hpp"
+#include "Type.hpp"
+
+using namespace std;
+//ukljuciti stablo
+
+extern int yylex();
+void yyerror(std::string s){
+    std::cerr << s << std::endl;
+    exit(EXIT_FAILURE);
+}
+%}
+%token return_token class_token public_token private_token int_token double_token void_token string_token
+%token <d> num_double_token
+%token <i> num_int_token
+%token <s> id_token
+
+%union {
+        std::string* s;
+        int i;
+        double d;
+}
+
+%%
+Program: Array_of_object                {}           
+|                                       {}                                   
+;
+Array_of_object: Array_of_object Object  { }                                          
+|                                       { }               
+;
+
+Object: class_token id_token '{' Class_block '}'  {}
+|                                                {}
+;
+Class_block: Class_block Commands               {}    
+|
+                                                { }
+;
+Commands: Commands private_token Attribute ';' {}
+|       Commands public_token Attribute ';' { }
+|       Commands private_token Method       { }
+|       Commands public_token Method        { }
+|                                           { }
+;
+Attribute:  int_token Ids        {}
+|           double_token Ids     {}
+|           string_token Ids     {}
+;
+Ids: Ids id_token                { }
+|                                { }
+;
+Method: int_token id_token '(' ')' '{' Method_block '}'         { }
+|       double_token id_token '(' ')' '{' Method_block '}'      { }
+|       string_token id_token '(' ')' '{' Method_block '}'      { }
+|       void_token id_token '(' ')' '{' Method_block '}'        { }
+;
+Method_block: Method_block return_token id_token '(' ')' ';'  { }
+|   return_token id_token ';'                   { }
+|   Inicijalizacija ';'    { }
+|   Dodela ';'            { }
+|   Expresion              { }
+|                          { }
+
+;
+Inicijalizacija: int_token Array
+| double_token Array   
+| string_token Array
+;
+Array: id_token ',' Array
+| id_token '=' Expresion
+;
+Dodela: id_token '=' Expresion                {}
+;
+Expresion: id_token '.' id_token '(' ')' { }
+| id_token '.' id_token         {}
+| Expresion '+' Expresion       {}
+| id_token                      {}
+| num_double_token              {}
+| num_int_token                 {}
+| id_token '(' ')'              {}
+%%
+
+int main(){
+    yyparse();
+    return 0;
+}

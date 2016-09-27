@@ -1,5 +1,6 @@
 #include "ClassTable.hpp"
 #include <string>
+#include <vector>
 using namespace std;
 
 void ClassTable::add(ClassDef* cd){

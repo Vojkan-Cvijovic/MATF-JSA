@@ -1,20 +1,18 @@
 #ifndef __CLASSTABLE_HPP__
 #define __CLASSTABLE_HPP__
 #include "ClassDef.hpp"
-
-using namespace std;
+#include <iostream>
 #include <vector>
-
 class ClassTable
 {
 public:
-	ClassTable()
+    ClassTable(std::vector<ClassDef*> bucket)
 	:_bucket(bucket){}
 	~ClassTable();
 	void add(ClassDef* cd);
-	ClassDef* get(string className);
+    ClassDef* get(std::string className);
 private:
-	vector<ClassDef*> _bucket;
+    std::vector<ClassDef*> _bucket;
 };
 
 

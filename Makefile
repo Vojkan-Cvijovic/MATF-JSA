@@ -1,7 +1,7 @@
 CC=g++
-CFLAGS=-Wall -std=c++11
+CFLAGS= -std=c++11
 
-analizator: lex.yy.o parser.tab.o SymbolTable.o MethodTable.o ClassTable.o ClassDefinition.o
+analizator: lex.yy.o parser.tab.o SymbolTable.o MethodTable.o ClassTable.o ClassDef.o
 	$(CC) $(CFLAGS) -o $@ $^
 parser.tab.o: parser.tab.cpp parser.tab.hpp
 	$(CC) $(CFLAGS) -c -o $@ $<
@@ -15,9 +15,9 @@ SymbolTable.o: SymbolTable.cpp SymbolTable.hpp Type.hpp
 	$(CC) $(CFLAGS) -c -o $@ $<
 MethodTable.o: MethodTable.cpp MethodTable.hpp Type.hpp
 	$(CC) $(CFLAGS) -c -o $@ $<
-ClassTable.o: ClassTable.cpp ClassTable.hpp ClassDefinition.hpp
+ClassTable.o: ClassTable.cpp ClassTable.hpp ClassDef.hpp
 	$(CC) $(CFLAGS) -c -o $@ $<
-ClassDefinition.o: ClassDefinition.cpp ClassDefinition.hpp FiledType.hpp Type.hpp
+ClassDef.o: ClassDef.cpp ClassDef.hpp FieldType.hpp Type.hpp
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 .PHONY: clean

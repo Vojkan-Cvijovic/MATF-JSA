@@ -1,4 +1,7 @@
 #include "MethodTable.hpp"
+#include <string>
+#include <vector>
+
 using namespace std;
 
 void MethodTable::add(Type* t){
@@ -6,8 +9,8 @@ void MethodTable::add(Type* t){
 }
 Type* MethodTable::get(string id){
 
-	for(auto iterator = bucket.rbegin(); *iterator != nullptr; ++iterator){
-		if(iterator == nullptr){
+	for(auto iterator = bucket.rbegin(); *iterator != *bucket.rend(); ++iterator){
+		if(*iterator == nullptr){
 			cerr << "iterator in MethodTable is null " << endl;
 		}
 		if(!id.compare((*iterator)->getId()))

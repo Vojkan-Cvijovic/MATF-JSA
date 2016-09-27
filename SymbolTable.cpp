@@ -1,11 +1,16 @@
 #include "SymbolTable.hpp"
+#include <vector>
+#include <string>
 using namespace std;
 
 void SymbolTable::add(Type* t){
 	bucket.push_back(t);
 }
 Type* SymbolTable::get(string id){
-	for(auto iterator = bucket.rbegin(); *iterator != nullptr; ++iterator){
+	for(auto iterator = bucket.rbegin(); *iterator != *bucket.rend(); ++iterator){
+        if(*iterator == nullptr)
+            continue;
+        
 		if(!id.compare((*iterator)->getId()))
 			return *iterator;
 	}

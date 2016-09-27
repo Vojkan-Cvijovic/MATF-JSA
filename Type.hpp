@@ -6,69 +6,66 @@
 #define STRING_TOKEN "string"
 #define CLASS_TOKEN "class"
 #define VOID_TOKEN "void"
-
-#include <string>
-
-using namespace std;
+#include <iostream>
 
 class Type
 {
 public:
-	Type(string id)
+    Type(std::string id)
 	:_id(id){}
-	string getId(){ return _id;}
-	virtual string getType() const =0;
-	virtual string getClassName() =0;
+	std::string getId(){ return _id;}
+	virtual std::string getType() const =0;
+    virtual std::string getClassName() =0;
 	virtual ~Type(){};
 protected:
-	string _id;
+    std::string _id;
 };
 
 class IntType : public Type
 {
 public:
-	IntType(string id)
+    IntType(std::string id)
 	:Type(id){}
-	string getType() const { return INT_TOKEN;}
-	string getClassName(){ return nullptr;}
+	std::string getType() const { return INT_TOKEN;}
+	std::string getClassName(){ return nullptr;}
 };
 
 class DoubleType : public Type
 {
 public:
-	DoubleType(string id)
+    DoubleType(std::string id)
 	:Type(id){}
-	string getType() const {return DOUBLE_TOKEN;}
-	string getClassName(){return nullptr;}
+	std::string getType() const {return DOUBLE_TOKEN;}
+	std::string getClassName(){return nullptr;}
 };
 
 class StringType : public Type
 {
 public:
-	StringType(string id)
+    StringType(std::string id)
 	:Type(id){}
-	string getType() const {return STRING_TOKEN;}
-	string getClassName(){return nullptr;}
+	std::string getType() const {return STRING_TOKEN;}
+	std::string getClassName(){return nullptr;}
 };
 
 class ClassType : public Type
 {
 public:
-	ClassType(string className,string id)
+    ClassType(std::string className,std::string id)
 	:Type(id),_className(className){}
-	string getType() const{ return CLASS_TOKEN;}
-	string getClassName(){ return _className;}
+	std::string getType() const{ return CLASS_TOKEN;}
+	std::string getClassName(){ return _className;}
 private:
-	string _className;
+    std::string _className;
 };
 
 class VoidType : Type
 {
 public:
-	VoidType(string id)
+    VoidType(std::string id)
 	:Type(id){}
-	string getClassName(){ return nullptr;}
-	string getType(){return VOID_TOKEN;}
+	std::string getClassName(){ return nullptr;}
+	std::string getType(){return VOID_TOKEN;}
 };
 
 #endif
