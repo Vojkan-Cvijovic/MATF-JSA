@@ -14,8 +14,8 @@ public:
     Type(std::string id)
 	:_id(id){}
 	std::string getId(){ return _id;}
-	virtual std::string getType() const =0;
-    virtual std::string getClassName() =0;
+	virtual std::string getType()  =0;
+        virtual std::string getClassName() =0;
 	virtual ~Type(){};
 protected:
     std::string _id;
@@ -26,8 +26,8 @@ class IntType : public Type
 public:
     IntType(std::string id)
 	:Type(id){}
-	std::string getType() const { return INT_TOKEN;}
-	std::string getClassName(){ return nullptr;}
+	std::string getType() override{ return INT_TOKEN;}
+	std::string getClassName()override{ return nullptr;}
 };
 
 class DoubleType : public Type
@@ -35,8 +35,8 @@ class DoubleType : public Type
 public:
     DoubleType(std::string id)
 	:Type(id){}
-	std::string getType() const {return DOUBLE_TOKEN;}
-	std::string getClassName(){return nullptr;}
+	std::string getType() override {return DOUBLE_TOKEN;}
+	std::string getClassName()override{return nullptr;}
 };
 
 class StringType : public Type
@@ -44,8 +44,8 @@ class StringType : public Type
 public:
     StringType(std::string id)
 	:Type(id){}
-	std::string getType() const {return STRING_TOKEN;}
-	std::string getClassName(){return nullptr;}
+	std::string getType() override {return STRING_TOKEN;}
+	std::string getClassName()override{return nullptr;}
 };
 
 class ClassType : public Type
@@ -53,19 +53,19 @@ class ClassType : public Type
 public:
     ClassType(std::string className,std::string id)
 	:Type(id),_className(className){}
-	std::string getType() const{ return CLASS_TOKEN;}
-	std::string getClassName(){ return _className;}
+	std::string getType() override{ return CLASS_TOKEN;}
+	std::string getClassName()override{ return _className;}
 private:
     std::string _className;
 };
 
-class VoidType : Type
+class VoidType : public Type
 {
 public:
     VoidType(std::string id)
 	:Type(id){}
-	std::string getClassName(){ return nullptr;}
-	std::string getType(){return VOID_TOKEN;}
+	std::string getClassName() override{ return nullptr;}
+	std::string getType()override{return VOID_TOKEN;} 
 };
 
 #endif

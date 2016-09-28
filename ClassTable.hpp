@@ -6,8 +6,7 @@
 class ClassTable
 {
 public:
-    ClassTable(std::vector<ClassDef*> bucket)
-	:_bucket(bucket){}
+    ClassTable() {}
 	~ClassTable();
 	void add(ClassDef* cd);
     ClassDef* get(std::string className);

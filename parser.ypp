@@ -47,8 +47,8 @@ void yyerror(std::string s){
 }
 
 %type <cdef> Class
-%type <vftype> ClassBlock
-%type <ftype> Command
+%type <vftype> ClassBlock 
+%type <vftype> Command
 %type <vtype> Attribute
 %type <vstring> Ids
 %type <type> MethodInt MethodVoid MethodString MethodDouble Method MethodCommand MethodBlock Expresion
@@ -61,13 +61,15 @@ Program: Program Class                { classTable->add($2); }
                                         methodTable = new MethodTable();} 
 ;
 
-Class: class_token id_token '{' ClassBlock '}' { $$ = new ClassDef($2,$4);
+Class: class_token id_token '{' ClassBlock '}' { $$ = new ClassDef(*$2,$4);
                                                     symbolTable->deinit();
                                                     methodTable->deinit();
                                                 }
 ;                                                       
 
-ClassBlock: ClassBlock Command                  { $1->push_back($2); $$ = $1; }
+ClassBlock: ClassBlock Command                  {  for(auto i = $2->begin();i != $2->end();i++)
+                                                                            $1->push_back(*i);
+                                                                            $$ = $1; }
 |                                               { $$ = new std::vector<FieldType*>();
                                                   symbolTable->init();
                                                   methodTable->init();
@@ -90,8 +92,12 @@ Command:    private_token Attribute ';'   {
                                              }
                                              $$ = v;
                                            }
-|           private_token Method          { $$ = new PrivateMethodFieldType($2);    }
-|           public_token Method           { $$ = new PublicMethodFieldType($2);     }
+|           private_token Method          {  std::vector<FieldType*>* v = new std::vector<FieldType*>();
+                                                                v->push_back(new PrivateMethodFieldType($2));
+                                                                $$ = v;   }
+|            public_token Method           { std::vector<FieldType*>* v = new std::vector<FieldType*>();
+                                                            v->push_back(new PublicMethodFieldType($2));
+                                                            $$ = v;     }
 ;
 
 Attribute:  int_token Ids        {  std::vector<Type*>* v = new std::vector<Type*>();
@@ -129,40 +135,48 @@ Method: MethodInt '(' ')' '{' MethodBlock '}'         {         $$ = $1;
                                                                 std::string returnType = $5->getType();
                                                                 if(!type.compare(returnType))
                                                                     std::cout << "ERROR: method return type missmatch, expected: " << type << std::endl;
+                                                                    symbolTable->deinit();
                                                                 }
 |       MethodDouble '(' ')' '{' MethodBlock '}'      {         $$ = $1;
                                                                 std::string type = $$->getType();
                                                                 std::string returnType = $5->getType();
                                                                 if(!type.compare(returnType))
                                                                     std::cout << "ERROR: method return type missmatch, expected: " << type << std::endl;
+                                                                    symbolTable->deinit();
                                                                 }
 |       MethodString '(' ')' '{' MethodBlock '}'      {         $$ = $1;
                                                                 std::string type = $$->getType();
                                                                 std::string returnType = $5->getType();
                                                                 if(!type.compare(returnType))
                                                                     std::cout << "ERROR: method return type missmatch, expected: " << type << std::endl;
+                                                                    symbolTable->deinit();
                                                                 }
 |       MethodVoid '(' ')' '{' MethodBlock '}'        {         $$ = $1;
                                                                 std::string type = $$->getType();
                                                                 std::string returnType = $5->getType();
                                                                 if(!type.compare(returnType))
                                                                     std::cout << "ERROR: method return type missmatch, expected: " << type << std::endl;
+                                                                    symbolTable->deinit();
                                                                 }
 ;
 MethodInt: int_token id_token            {$$ = new IntType(*$2);
                                             methodTable->add($$);
+                                            symbolTable->init();
                                         }
 ;
 MethodDouble: double_token id_token      {$$ = new DoubleType(*$2);
                                             methodTable->add($$);
+                                            symbolTable->init();
                                         }
 ;
 MethodString: string_token id_token      {$$ = new StringType(*$2);
                                             methodTable->add($$);
+                                            symbolTable->init();
                                         }
 ;
 MethodVoid: void_token id_token          {$$ = new VoidType(*$2);
                                             methodTable->add($$);
+                                            symbolTable->init();
                                         }
 ;
 
@@ -223,13 +237,13 @@ Inicijalizacija: int_token id_token '=' Expresion   {
 
 Deklaracija: int_token Ids      {
                                     for(auto i = $2->begin();i != $2->end();i++){
-                                        StringType* t = new IntType(*(*i));
+                                        IntType* t = new IntType(*(*i));
                                         symbolTable->add(t);
                                         }
                                 }
 | double_token Ids              {
                                     for(auto i = $2->begin();i != $2->end();i++){
-                                        StringType* t = new DoubleType(*(*i));
+                                        DoubleType* t = new DoubleType(*(*i));
                                         symbolTable->add(t);
                                         }
                                 }
@@ -243,10 +257,10 @@ Deklaracija: int_token Ids      {
 Dodela: id_token '=' Expresion   { Type* idType = symbolTable->get(*$1);
                                        if(idType == nullptr){
                                             std::cout << "ERROR: variable " << *$1 << "is not defined." << std::endl;
-                                            }else{
+                                       }else{
                                                 std::string type = idType->getType();
                                                 std::string returnType = $3->getType();
-                                                else if(!type.compare("int") && !returnType.compare("double")){
+                                                if(!type.compare("int") && !returnType.compare("double")){
                                                     std::cout << "WARRNING implicit conversion" << endl;
                                                 }else if(!type.compare("double") && !returnType.compare("int")){
                                                     std::cout << "WARRNING implicit conversion" << endl;
@@ -264,22 +278,24 @@ Expresion: id_token '.' id_token '(' ')' {
                                         $$ = nullptr;
                                         
                                     }else{
-                                        ClassDef* classInfo = classTable->get(firstType->getClassName());
-                                        FieldType* field = classInfo->get($3);
-                                        if(field == nullptr){
-                                            std::cout << "ERROR: " << *$3 << " is not defined in class" << endl;
-                                            $$ = nullptr;
-                                        }else{
-                                            std::string attr = field->getFieldType();
-                                            if(attr.compare("method")){
-                                                std::cout << "ERROR: " << *$3 << " is not class method" << endl;
+                                            std::string className = firstType->getClassName();
+                                            ClassDef* classInfo = classTable->get(className);
+                                        
+                                            FieldType* field = classInfo->get($3);
+                                            if(field == nullptr){
+                                                std::cout << "ERROR: " << *$3 << " is not defined in class" << endl;
+                                                $$ = nullptr;
                                             }else{
-                                                std::string access = field->getAccess();
-                                                if(access.compare("private")){
-                                                    std::cout << "ERROR: " << *$3 << " is private" << endl;
-                                                    $$ = nullptr;
+                                                std::string attr = field->getFieldType();
+                                                if(attr.compare("method")){
+                                                    std::cout << "ERROR: " << *$3 << " is not class method" << endl;
                                                 }else{
-                                                    $$ = field->getType();
+                                                    std::string access = field->getAccess();
+                                                        if(access.compare("private")){
+                                                            std::cout << "ERROR: " << *$3 << " is private" << endl;
+                                                            $$ = nullptr;
+                                                        }else{
+                                                            $$ = field->getType();
                                                 }
                                             }
                                         }
