@@ -16,6 +16,7 @@ public:
 	FieldType(Type* t)
 	:_type(t){}
 	std::string getId(){return _type->getId();}
+	Type* getType(){return _type;}
 	virtual std::string getAccess() =0;
     virtual std::string getFieldType() =0;
 	virtual ~FieldType() {}

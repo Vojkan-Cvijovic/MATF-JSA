@@ -15,6 +15,8 @@ using namespace std;
 ClassTable* classTable;
 SymbolTable* symbolTable;
 MethodTable* methodTable;
+std::string tmp = "tmp";
+int i=0;
 
 extern int yylex();
 void yyerror(std::string s){
@@ -22,10 +24,10 @@ void yyerror(std::string s){
     exit(EXIT_FAILURE);
 }
 %}
-%token return_token class_token public_token private_token int_token double_token void_token string_token
+%token return_token class_token public_token private_token int_token double_token void_token string_token class_id_token
 %token <d> num_double_token
 %token <i> num_int_token
-%token <s> id_token
+%token <s> id_token class_id_token
 
 
 
@@ -40,7 +42,7 @@ void yyerror(std::string s){
         std::vector<FieldType*>* vftype;
         FieldType* ftype;
         std::vector<Type*>* vtype;
-        std::vector<std::string>* vstring;
+        std::vector<std::string*>* vstring;
         Type* type;
 }
 
@@ -50,6 +52,8 @@ void yyerror(std::string s){
 %type <vtype> Attribute
 %type <vstring> Ids
 %type <type> MethodInt MethodVoid MethodString MethodDouble
+
+
 %%
 Program: Program Class                { classTable->add($2); }
 |                                      { classTable = new ClassTable();
@@ -179,37 +183,167 @@ MethodCommand: return_token id_token '(' ')' ';'    { $$ = methodTable->get(*$2)
                                                         if($$ == nullptr)
                                                         std::cout << "ERROR: variable " << *$2 << "is not defined." << std::endl;
                                                     }
+|   Deklaracija  ';'                                {$$ = nullptr; }
 |   Inicijalizacija ';'                             {$$ = nullptr; }
 |   Dodela ';'                                      {$$ = nullptr; }
 |   Expresion ';'                                   {$$ = nullptr; }
 ;
 
-
-Inicijalizacija: int_token Array
-| double_token Array   
-| string_token Array
-;
-Array: id_token ',' Array
-| id_token '=' Expresion
-;
-Dodela: id_token '=' Expresion                { $$ = symbolTable->get(*$1);
-                                                if($$ == nullptr)
-                                                    std::cout << "ERROR: variable " << *$1 << "is not defined." << std::endl;
-                                                std::string type = $$->getType();
-                                                std::string returnType = $3->getType();
-                                                /*Potrebno je da se naprav slucajevi kada se desava implicitna konverzija, samo za int i double*/
-                                                
+Inicijalizacija: int_token id_token '=' Expresion   { 
+                                        symbolTable->add(new IntType(*$2));
+                                        std::string type = $4->getType();
+                                        if(!type.compare("double"))
+                                            std::cout << "WARRNING implicit conversion" << endl;
+                                        else if(type.compare("int"))
+                                            std::cout << "ERROR type missmatch" << endl;
                                             }
+|   double_token id_token '=' Expresion     { 
+                                        symbolTable->add(new DoubleType(*$2));
+                                        std::string type = $4->getType();
+                                        if(type.compare("double"))
+                                            std::cout << "ERROR type missmatch" << endl;
+                                            }
+|   string_token id_token '=' Expresion     { 
+                                        symbolTable->add(new StringType(*$2));
+                                        std::string type = $4->getType();
+                                        if(type.compare("string"))
+                                            std::cout << "ERROR type missmatch" << endl;
+                                        }
+|   class_id_token id_token '=' Expresion      {
+                                        if(classTable->get(*$1) == nullptr)
+                                            cout << "ERROR class " << *$1 << "is not defined" << endl;
+                                        else{
+                                        symbolTable->add(new ClassType(*$1,*$2));
+                                        std::string type = $4->getType();
+                                        if(type.compare("class"))
+                                            std::cout << "ERROR type missmatch" << endl;
+                                        }
+                                    }
 ;
-Expresion: id_token '.' id_token '(' ')' { }
-| id_token '.' id_token         {}
-| Expresion '+' Expresion       {}
+
+Deklaracija: int_token Ids      {
+                                    for(auto i = $2->begin();i != $2->end();i++){
+                                        StringType* t = new IntType(*(*i));
+                                        symbolTable->add(t);
+                                        }
+                                }
+| double_token Ids              {
+                                    for(auto i = $2->begin();i != $2->end();i++){
+                                        StringType* t = new DoubleType(*(*i));
+                                        symbolTable->add(t);
+                                        }
+                                }
+| string_token Ids              {
+                                    for(auto i = $2->begin();i != $2->end();i++){
+                                        StringType* t = new StringType(*(*i));
+                                        symbolTable->add(t);
+                                        }
+                                }
+;
+Dodela: id_token '=' Expresion   { Type* idType = symbolTable->get(*$1);
+                                       if(idType == nullptr){
+                                            std::cout << "ERROR: variable " << *$1 << "is not defined." << std::endl;
+                                            }else{
+                                                std::string type = idType->getType();
+                                                std::string returnType = $3->getType();
+                                                else if(!type.compare("int") && !returnType.compare("double")){
+                                                    std::cout << "WARRNING implicit conversion" << endl;
+                                                }else if(!type.compare("double") && !returnType.compare("int")){
+                                                    std::cout << "WARRNING implicit conversion" << endl;
+                                                }else{
+                                                    std::cout << "ERROR type missmatch" << std::endl;
+                                                }    
+                                            }
+                                        }
+;
+Expresion: id_token '.' id_token '(' ')' { 
+                                    Type* firstType = symbolTable->get($1);
+                                    std::string type = firstType->getType();
+                                    if(type.compare("class")){
+                                        std::cout << "ERROR: " << *$1 << " is not defined as class" << endl;
+                                        $$ = nullptr;
+                                        
+                                    }else{
+                                        ClassDef* classInfo = classTable->get(firstType->getName());
+                                        FieldType* field = classInfo->get($3);
+                                        if(field == nullptr){
+                                            std::cout << "ERROR: " << *$3 << " is not defined in class" << endl;
+                                            $$ = nullptr;
+                                        }else{
+                                            std::string attr = field->getFieldType();
+                                            if(attr.compare("method")){
+                                                std::cout << "ERROR: " << *$3 << " is not class method" << endl;
+                                            }else{
+                                                std::string access = attr->getAccess();
+                                                if(access.compare("private")){
+                                                    std::cout << "ERROR: " << *$3 << " is private" << endl;
+                                                    $$ = nullptr;
+                                                }else{
+                                                    $$ = field->getType();
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+| id_token '.' id_token         {   Type* firstType = symbolTable->get($1);
+                                    std::string type = firstType->getType();
+                                    if(type.compare("class")){
+                                        std::cout << "ERROR: " << *$1 << " is not defined as class" << endl;
+                                        $$ = nullptr;
+                                    }else{
+                                        ClassDef* classInfo = classTable->get(firstType->getName());
+                                        FieldType* field = classInfo->get($3);
+                                        if(field == nullptr){
+                                            std::cout << "ERROR: " << *$3 << " is not defined in class" << endl;
+                                            $$ = nullptr;
+                                        }else{
+                                            std::string attr = field->getFieldType();
+                                            if(attr.compare("attribute")){
+                                                std::cout << "ERROR: " << *$3 << " is not class attribute" << endl;
+                                            }else{
+                                                std::string access = attr->getAccess();
+                                                if(access.compare("private")){
+                                                    std::cout << "ERROR: " << *$3 << " is private" << endl;
+                                                    $$ = nullptr;
+                                                }else{
+                                                    $$ = field->getType();
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+| Expresion '+' Expresion       {   if($1 == nullptr || $3 == nullptr)
+                                        $$ = nullptr;
+                                    else{
+                                        std::string firstType = $1->getType();
+                                        std::string secondType = $3->getType();
+                                    
+                                        if(!firstType.compare(secondType))
+                                            $$ = $1;
+                                        else if(!firstType.compare("int") && !secondType.compare("double"))
+                                            $$ = $3;
+                                        else if(!firstType.compare("double") && !secondType.compare("int"))
+                                            $$ = $1;
+                                        else{
+                                            std::cout << "ERROR type missmatch" << endl;
+                                            $$ = nullptr;
+                                        }
+                                    }
+                                }
 | id_token                      { $$ = symbolTable->get(*$1);
                                     if($$ == nullptr)
                                         std::cout << "ERROR: variable " << *$1 << "is not defined." << std::endl;
                                 }
-| num_double_token              { $$ = new DoubleType(nullptr);}
-| num_int_token                 { $$ = new IntType(nullptr);}
+| num_double_token              {   std::string id = std::to_string(i);i++;
+                                    tmp.append(id);
+                                    if(tmp == nullptr)
+                                        yyerror("append variable id");
+                                    $$ = new DoubleType(tmp);}
+| num_int_token                 {   std::string id = std::to_string(i);i++;
+                                    tmp.append(id);
+                                    if(tmp == nullptr)
+                                        yyerror("append variable id");
+                                    $$ = new IntType(tmp);}
 | id_token '(' ')'              { $$ = methodTable->get(*$1);
                                     if($$ == nullptr)
                                         std::cout << "ERROR: method " << *$1 << " is not defined." << std::endl;

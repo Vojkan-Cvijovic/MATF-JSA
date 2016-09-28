@@ -11,10 +11,6 @@ class A {
 class B {  
    public A a;  
    public string d;  
-   private int l() {
-     int h = 0;
-     return h;
-	}
    public void g() {  
      int z = a.x;  
      int d; // OK sakrivamo globalno ime  
@@ -24,7 +20,6 @@ class B {
      int y = a.z; // greska z je private  
      int t = a.m; // greska nedefinisano polje  
      int s = g(); // greska, g je void  
-     int j = l();
 	}  
 }  
 
@@ -90,11 +85,13 @@ Array_of_object: Array_of_object Object  { dodajemo ClassDef iz Object u tablicu
 |                                        { pravimo tablicu klasa }               
 ;
 
-Object: class_token id_token '{' Class_block '}'    { $$ = ClassDef($2,$4); }
+Object: class_token id_token '{' Class_block '}'    
+{ $$ = ClassDef($2,$4); }
 ;
 
 Class_block: Class_block Command   { $$ = $1.push_back($2)}    
-|          { $$ = new vector<FieldType*>()}
+|
+          { $$ = new vector<FieldType*>()}
 ;
 
 
