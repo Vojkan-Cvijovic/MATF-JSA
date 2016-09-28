@@ -24,7 +24,7 @@ void yyerror(std::string s){
     exit(EXIT_FAILURE);
 }
 %}
-%token return_token class_token public_token private_token int_token double_token void_token string_token class_id_token
+%token return_token class_token public_token private_token int_token double_token void_token string_token 
 %token <d> num_double_token
 %token <i> num_int_token
 %token <s> id_token class_id_token
@@ -51,12 +51,12 @@ void yyerror(std::string s){
 %type <ftype> Command
 %type <vtype> Attribute
 %type <vstring> Ids
-%type <type> MethodInt MethodVoid MethodString MethodDouble
+%type <type> MethodInt MethodVoid MethodString MethodDouble Method MethodCommand MethodBlock Expresion
 
 
 %%
 Program: Program Class                { classTable->add($2); }
-|                                      { classTable = new ClassTable();
+|                                      {classTable = new ClassTable();
                                         symbolTable = new SymbolTable();
                                         methodTable = new MethodTable();} 
 ;
@@ -75,7 +75,7 @@ ClassBlock: ClassBlock Command                  { $1->push_back($2); $$ = $1; }
 ;
 
 Command:    private_token Attribute ';'   { 
-                                            std::vector<FieldType*>* v = new std::vector<FieldType*>()
+                                            std::vector<FieldType*>* v = new std::vector<FieldType*>();
                                              for(auto i = $2->begin();i != $2->end();i++){
                                                    PrivateAttributeFieldType* t = new PrivateAttributeFieldType(*i);
                                                    v->push_back(t);
@@ -83,7 +83,7 @@ Command:    private_token Attribute ';'   {
                                              $$ = v;
                                            }
 |           public_token Attribute ';'    { 
-                                            std::vector<FieldType*>* v = new std::vector<FieldType*>()
+                                            std::vector<FieldType*>* v = new std::vector<FieldType*>();
                                              for(auto i = $2->begin();i != $2->end();i++){
                                                    PublicAttributeFieldType* t = new PublicAttributeFieldType(*i);
                                                    v->push_back(t);
@@ -264,7 +264,7 @@ Expresion: id_token '.' id_token '(' ')' {
                                         $$ = nullptr;
                                         
                                     }else{
-                                        ClassDef* classInfo = classTable->get(firstType->getName());
+                                        ClassDef* classInfo = classTable->get(firstType->getClassName());
                                         FieldType* field = classInfo->get($3);
                                         if(field == nullptr){
                                             std::cout << "ERROR: " << *$3 << " is not defined in class" << endl;
@@ -274,7 +274,7 @@ Expresion: id_token '.' id_token '(' ')' {
                                             if(attr.compare("method")){
                                                 std::cout << "ERROR: " << *$3 << " is not class method" << endl;
                                             }else{
-                                                std::string access = attr->getAccess();
+                                                std::string access = field->getAccess();
                                                 if(access.compare("private")){
                                                     std::cout << "ERROR: " << *$3 << " is private" << endl;
                                                     $$ = nullptr;
@@ -301,7 +301,7 @@ Expresion: id_token '.' id_token '(' ')' {
                                             if(attr.compare("attribute")){
                                                 std::cout << "ERROR: " << *$3 << " is not class attribute" << endl;
                                             }else{
-                                                std::string access = attr->getAccess();
+                                                std::string access = field->getAccess();
                                                 if(access.compare("private")){
                                                     std::cout << "ERROR: " << *$3 << " is private" << endl;
                                                     $$ = nullptr;
@@ -336,13 +336,9 @@ Expresion: id_token '.' id_token '(' ')' {
                                 }
 | num_double_token              {   std::string id = std::to_string(i);i++;
                                     tmp.append(id);
-                                    if(tmp == nullptr)
-                                        yyerror("append variable id");
                                     $$ = new DoubleType(tmp);}
 | num_int_token                 {   std::string id = std::to_string(i);i++;
                                     tmp.append(id);
-                                    if(tmp == nullptr)
-                                        yyerror("append variable id");
                                     $$ = new IntType(tmp);}
 | id_token '(' ')'              { $$ = methodTable->get(*$1);
                                     if($$ == nullptr)
