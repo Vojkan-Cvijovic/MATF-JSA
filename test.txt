@@ -1,0 +1,8 @@
+class A {  
+
+   public int x, y;  
+
+   private int z;  
+
+   public double f() {}
+}

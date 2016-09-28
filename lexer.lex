@@ -26,7 +26,6 @@ double			return double_token;
 void			return void_token;
 string			return string_token;
 return 			return return_token;
-"//".*             {}           
 [A-Z]           return class_id_token;
 [0-9]+\.[0-9]+     	        { yylval.d = atof(yytext); return num_double_token; }
 [0-9]+			           { yylval.i = atoi(yytext); return num_int_token; }

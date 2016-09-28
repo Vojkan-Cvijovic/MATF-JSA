@@ -8,7 +8,7 @@
 #include "MethodTable.hpp"
 #include "FieldType.hpp"
 #include "Type.hpp"
-
+#define YYDEBUG 1
 using namespace std;
 
 //ukljuciti stablo
@@ -61,7 +61,7 @@ Program: Program Class                { classTable->add($2); }
                                         methodTable = new MethodTable();} 
 ;
 
-Class: class_token id_token '{' ClassBlock '}' { $$ = new ClassDef(*$2,$4);
+Class: class_token class_id_token '{' ClassBlock '}' { $$ = new ClassDef(*$2,$4);
                                                     symbolTable->deinit();
                                                     methodTable->deinit();
                                                 }
@@ -193,7 +193,7 @@ MethodBlock: MethodBlock MethodCommand    { if($2 != nullptr)
                                             else
                                                 $$ = $1;
                                           }
-|                                   { $$ = new VoidType(nullptr);} // default value
+ |                                   { $$ = new VoidType("void");} // default value
 ;
 
 MethodCommand: return_token id_token '(' ')' ';'    { $$ = methodTable->get(*$2);
@@ -374,6 +374,7 @@ Expresion: id_token '.' id_token '(' ')' {
 %%
 
 int main(){
+    yydebug = 1;
     yyparse();
     return 0;
 }
