@@ -67,8 +67,10 @@ Class: class_token id_token '{' ClassBlock '}' { $$ = new ClassDef(*$2,$4);
                                                 }
 ;                                                       
 
-ClassBlock: ClassBlock Command                  {  for(auto i = $2->begin();i != $2->end();i++)
-                                                                            $1->push_back(*i);
+ClassBlock: ClassBlock Command                  {  for(auto i = $2->begin();i != $2->end();i++)
+
+                                                                            $1->push_back(*i);
+
                                                                             $$ = $1; }
 |                                               { $$ = new std::vector<FieldType*>();
                                                   symbolTable->init();
@@ -92,11 +94,16 @@ Command:    private_token Attribute ';'   {
                                              }
                                              $$ = v;
                                            }
-|           private_token Method          {  std::vector<FieldType*>* v = new std::vector<FieldType*>();
-                                                                v->push_back(new PrivateMethodFieldType($2));
+|           private_token Method          {  std::vector<FieldType*>* v = new std::vector<FieldType*>();
+
+
+                                                                v->push_back(new PrivateMethodFieldType($2));
+
                                                                 $$ = v;   }
-|            public_token Method           { std::vector<FieldType*>* v = new std::vector<FieldType*>();
-                                                            v->push_back(new PublicMethodFieldType($2));
+|            public_token Method           { std::vector<FieldType*>* v = new std::vector<FieldType*>();
+
+                                                            v->push_back(new PublicMethodFieldType($2));
+
                                                             $$ = v;     }
 ;
 
@@ -271,17 +278,18 @@ Dodela: id_token '=' Expresion   { Type* idType = symbolTable->get(*$1);
                                         }
 ;
 Expresion: id_token '.' id_token '(' ')' { 
-                                    Type* firstType = symbolTable->get($1);
+                                    Type* firstType = symbolTable->get(*$1);
                                     std::string type = firstType->getType();
                                     if(type.compare("class")){
                                         std::cout << "ERROR: " << *$1 << " is not defined as class" << endl;
                                         $$ = nullptr;
                                         
                                     }else{
-                                            std::string className = firstType->getClassName();
+                                            std::string className = firstType->getClassName();
+
                                             ClassDef* classInfo = classTable->get(className);
                                         
-                                            FieldType* field = classInfo->get($3);
+                                            FieldType* field = classInfo->get(*$3);
                                             if(field == nullptr){
                                                 std::cout << "ERROR: " << *$3 << " is not defined in class" << endl;
                                                 $$ = nullptr;
@@ -301,14 +309,15 @@ Expresion: id_token '.' id_token '(' ')' {
                                         }
                                     }
                                 }
-| id_token '.' id_token         {   Type* firstType = symbolTable->get($1);
+| id_token '.' id_token         {   Type* firstType = symbolTable->get(*$1);
                                     std::string type = firstType->getType();
                                     if(type.compare("class")){
                                         std::cout << "ERROR: " << *$1 << " is not defined as class" << endl;
                                         $$ = nullptr;
                                     }else{
-                                        ClassDef* classInfo = classTable->get(firstType->getName());
-                                        FieldType* field = classInfo->get($3);
+                                        std::string className = firstType->getClassName();
+                                        ClassDef* classInfo = classTable->get(className);
+                                        FieldType* field = classInfo->get(*$3);
                                         if(field == nullptr){
                                             std::cout << "ERROR: " << *$3 << " is not defined in class" << endl;
                                             $$ = nullptr;
