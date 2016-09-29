@@ -236,7 +236,7 @@ Inicijalizacija: int_token id_token '=' Expresion   {
                                             std::string type = $4->getType();
                                             if(!type.compare("int"))
                                                 std::cout << "WARRNING implicit conversion int --> double" << endl;
-                                            if(type.compare("double"))
+                                            else if(type.compare("double"))
                                                 std::cout << "ERROR type missmatch double --> " << type << std::endl;
                                             }
                                         }
