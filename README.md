@@ -16,12 +16,12 @@ class B {
    public string d;  
    public void g() {  
      int z = a.x;  
-     int d; // OK sakrivamo globalno ime  
-     string h = a.y; // greska y je int, a h je string  
-     double m = y + d; // OK implicitna konverzija  
+     int d; 
+     string h = a.y;  
+     double m = y + d;   
      a.f();  
-     int y = a.z; // greska z je private  
-     int t = a.m; // greska nedefinisano polje  
-     int s = g(); // greska, g je void  
+     int y = a.z;   
+     int t = a.m; 
+     int s = g(); 
 	}  
 }  
