@@ -225,7 +225,7 @@ Inicijalizacija: int_token id_token '=' Expresion   {
                                         if($4 != nullptr){
                                             std::string type = $4->getType();
                                             if(!type.compare("double"))
-                                                std::cout << "WARRNING implicit conversion" << endl;
+                                                std::cout << "WARRNING implicit conversion double --> int" << endl;
                                             else if(type.compare("int"))
                                                 std::cout << "ERROR type missmatch int --> " << type << endl;
                                             }
@@ -234,6 +234,8 @@ Inicijalizacija: int_token id_token '=' Expresion   {
                                         symbolTable->add(new DoubleType(*$2));
                                         if($4 != nullptr){
                                             std::string type = $4->getType();
+                                            if(!type.compare("int"))
+                                                std::cout << "WARRNING implicit conversion int --> double" << endl;
                                             if(type.compare("double"))
                                                 std::cout << "ERROR type missmatch double --> " << type << std::endl;
                                             }
