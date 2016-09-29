@@ -18,7 +18,7 @@ public:
 	std::string getId(){return _type->getId();}
 	Type* getType(){return _type;}
 	virtual std::string getAccess() =0;
-    virtual std::string getFieldType() =0;
+        virtual std::string getFieldType() =0;
 	virtual ~FieldType() {}
 protected:
 	Type* _type;
@@ -32,6 +32,7 @@ public:
 	 :FieldType(t){}
 	 std::string getFieldType(){return ATTRIBUTE_TOKEN;}
 	 std::string getAccess(){return PRIVATE_TOKEN;}
+	 ~PrivateAttributeFieldType(){delete _type;}
 };
 
 class PublicAttributeFieldType : public FieldType
@@ -41,6 +42,8 @@ public:
 	 :FieldType(t){}
 	 std::string getFieldType(){return ATTRIBUTE_TOKEN;}
 	 std::string getAccess(){return PUBLIC_TOKEN;}
+        ~PublicAttributeFieldType(){delete _type;}
+    
 };
 
 class PrivateMethodFieldType : public FieldType
@@ -50,6 +53,8 @@ public:
 	 :FieldType(t){}
 	 std::string getFieldType(){return METHOD_TOKEN;}
 	 std::string getAccess(){return PRIVATE_TOKEN;}
+        ~PrivateMethodFieldType(){delete _type;}
+    
 };
 
 class PublicMethodFieldType : public FieldType
@@ -59,5 +64,6 @@ public:
 	 :FieldType(t){}
 	 std::string getFieldType(){return METHOD_TOKEN;}
 	 std::string getAccess(){return PUBLIC_TOKEN;}
+        ~PublicMethodFieldType(){delete _type;}
 };
 #endif

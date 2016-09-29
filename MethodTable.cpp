@@ -7,7 +7,7 @@ using namespace std;
 void MethodTable::add(Type* t){
 	bucket.push_back(t);
 }
-Type* MethodTable::get(string id){
+Type* MethodTable::get(std::string id){
 
 	for(auto iterator = bucket.rbegin(); iterator != bucket.rend(); ++iterator){
 		if(*iterator == nullptr){
@@ -28,4 +28,8 @@ void MethodTable::deinit(){
 	}
 	// removing nullptr
 	bucket.pop_back();
+}
+MethodTable::~MethodTable(){
+    if(*bucket.begin() != nullptr)
+        bucket.erase(bucket.begin(), bucket.end());
 }

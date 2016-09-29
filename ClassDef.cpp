@@ -17,4 +17,9 @@ FieldType* ClassDef::get(string id){
 	}
 	return nullptr;
 }
+ClassDef::~ClassDef(){
+    if(*_bucket->begin() != nullptr){
+        _bucket->erase(_bucket->begin(), _bucket->end());
+    }
+}
 

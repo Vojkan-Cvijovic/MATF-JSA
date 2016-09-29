@@ -20,12 +20,16 @@ void SymbolTable::init(){
 	bucket.push_back(nullptr);
 }
 void SymbolTable::deinit(){
-	for(auto iterator = bucket.rbegin(); *iterator != nullptr; ++iterator){
+            for(auto iterator = bucket.rbegin(); *iterator != nullptr; ++iterator){
 		// traversing from back of the vector until we get to nulptr
 		bucket.pop_back();
-	}
-	// removing nullptr
-	bucket.pop_back();
+            }
+            // removing nullptr
+            bucket.pop_back();
+}
+SymbolTable::~SymbolTable(){
+    if(*bucket.begin() != nullptr)
+        bucket.erase(bucket.begin(), bucket.end());
 }
 
 

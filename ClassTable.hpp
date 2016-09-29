@@ -6,12 +6,12 @@
 class ClassTable
 {
 public:
-    ClassTable() {}
+         ClassTable() {}
 	~ClassTable();
 	void add(ClassDef* cd);
-    ClassDef* get(std::string className);
+        ClassDef* get(std::string className);
 private:
-    std::vector<ClassDef*> _bucket;
+        std::vector<ClassDef*> _bucket;
 };
 
 

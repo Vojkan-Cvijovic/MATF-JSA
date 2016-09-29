@@ -8,8 +8,8 @@ class ClassDef
 {
 public:
 	void add(FieldType* t);
-    FieldType* get(std::string id);
-    ClassDef(std::string id,std::vector<FieldType*>* bucket)
+        FieldType* get(std::string id);
+        ClassDef(std::string id,std::vector<FieldType*>* bucket)
 	:_id(id),_bucket(bucket){}
 	std::string getId() {return _id;}
 	~ClassDef();

@@ -11,7 +11,7 @@ public:
 	void init();				// do this at the start of block
 	void deinit();				// do this at the end of block
 	MethodTable(){}
-	~MethodTable(){}
+	~MethodTable();
 private:
     std::vector<Type*> bucket;
 };
