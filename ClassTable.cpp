@@ -11,6 +11,5 @@ ClassDef* ClassTable::get(string className){
 		if(!className.compare((*iterator)->getId()))
 			return *iterator;
 	}
-	cout << "Error: Class "<< className << " is not defined" << endl;
 	return nullptr;
 }

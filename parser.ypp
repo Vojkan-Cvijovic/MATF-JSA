@@ -55,13 +55,14 @@ void yyerror(std::string s){
 
 
 %%
-Program: Program Class                { classTable->add($2); }
+Program: Program Class                 {classTable->add($2); }
 |                                      {classTable = new ClassTable();
                                         symbolTable = new SymbolTable();
                                         methodTable = new MethodTable();} 
 ;
 
-Class: class_token class_id_token '{' ClassBlock '}' { $$ = new ClassDef(*$2,$4);
+Class: class_token class_id_token '{' ClassBlock '}' { 
+                                                    $$ = new ClassDef(*$2,$4);
                                                     symbolTable->deinit();
                                                     methodTable->deinit();
                                                 }
@@ -131,6 +132,15 @@ Attribute:  int_token Ids        {  std::vector<Type*>* v = new std::vector<Type
                                     }
                                     $$ = v;
                                 }
+|           class_id_token Ids  {
+                                std::vector<Type*>* v = new std::vector<Type*>();
+                                    for(auto i = $2->begin();i != $2->end();i++){
+                                        ClassType* t = new ClassType(*$1,*(*i));
+                                        symbolTable->add(t);
+                                        v->push_back(t);
+                                    }
+                                    $$ = v;
+                                }
 ;
 Ids: Ids ',' id_token  {$1->push_back($3); $$ = $1;}
 | id_token             { std::vector<std::string*>* v = new std::vector<std::string*>();
@@ -140,29 +150,29 @@ Ids: Ids ',' id_token  {$1->push_back($3); $$ = $1;}
 Method: MethodInt '(' ')' '{' MethodBlock '}'         {         $$ = $1; 
                                                                 std::string type = $$->getType();
                                                                 std::string returnType = $5->getType();
-                                                                if(!type.compare(returnType))
-                                                                    std::cout << "ERROR: method return type missmatch, expected: " << type << std::endl;
+                                                                if(type.compare(returnType))
+                                                                    std::cout << "ERROR: method return type missmatch, expected: " << type << " --> " << returnType << std::endl;
                                                                     symbolTable->deinit();
                                                                 }
 |       MethodDouble '(' ')' '{' MethodBlock '}'      {         $$ = $1;
                                                                 std::string type = $$->getType();
                                                                 std::string returnType = $5->getType();
-                                                                if(!type.compare(returnType))
-                                                                    std::cout << "ERROR: method return type missmatch, expected: " << type << std::endl;
+                                                                if(type.compare(returnType))
+                                                                    std::cout << "ERROR: method return type missmatch, expected: " << type << " --> " << returnType << std::endl;
                                                                     symbolTable->deinit();
                                                                 }
 |       MethodString '(' ')' '{' MethodBlock '}'      {         $$ = $1;
                                                                 std::string type = $$->getType();
                                                                 std::string returnType = $5->getType();
-                                                                if(!type.compare(returnType))
-                                                                    std::cout << "ERROR: method return type missmatch, expected: " << type << std::endl;
+                                                                if(type.compare(returnType))
+                                                                    std::cout << "ERROR: method return type missmatch, " << type << " --> " << returnType << std::endl;
                                                                     symbolTable->deinit();
                                                                 }
 |       MethodVoid '(' ')' '{' MethodBlock '}'        {         $$ = $1;
                                                                 std::string type = $$->getType();
                                                                 std::string returnType = $5->getType();
-                                                                if(!type.compare(returnType))
-                                                                    std::cout << "ERROR: method return type missmatch, expected: " << type << std::endl;
+                                                                if(type.compare(returnType))
+                                                                    std::cout << "ERROR: method return type missmatch, " << type << " --> " << returnType << std::endl;
                                                                     symbolTable->deinit();
                                                                 }
 ;
@@ -193,7 +203,7 @@ MethodBlock: MethodBlock MethodCommand    { if($2 != nullptr)
                                             else
                                                 $$ = $1;
                                           }
- |                                   { $$ = new VoidType("void");} // default value
+|                                   { $$ = new VoidType("voidTypeId");} // default value
 ;
 
 MethodCommand: return_token id_token '(' ')' ';'    { $$ = methodTable->get(*$2);
@@ -212,32 +222,41 @@ MethodCommand: return_token id_token '(' ')' ';'    { $$ = methodTable->get(*$2)
 
 Inicijalizacija: int_token id_token '=' Expresion   { 
                                         symbolTable->add(new IntType(*$2));
-                                        std::string type = $4->getType();
-                                        if(!type.compare("double"))
-                                            std::cout << "WARRNING implicit conversion" << endl;
-                                        else if(type.compare("int"))
-                                            std::cout << "ERROR type missmatch" << endl;
+                                        if($4 != nullptr){
+                                            std::string type = $4->getType();
+                                            if(!type.compare("double"))
+                                                std::cout << "WARRNING implicit conversion" << endl;
+                                            else if(type.compare("int"))
+                                                std::cout << "ERROR type missmatch int --> " << type << endl;
                                             }
+                                        }
 |   double_token id_token '=' Expresion     { 
                                         symbolTable->add(new DoubleType(*$2));
-                                        std::string type = $4->getType();
-                                        if(type.compare("double"))
-                                            std::cout << "ERROR type missmatch" << endl;
+                                        if($4 != nullptr){
+                                            std::string type = $4->getType();
+                                            if(type.compare("double"))
+                                                std::cout << "ERROR type missmatch double --> " << type << std::endl;
                                             }
+                                        }
 |   string_token id_token '=' Expresion     { 
                                         symbolTable->add(new StringType(*$2));
-                                        std::string type = $4->getType();
-                                        if(type.compare("string"))
-                                            std::cout << "ERROR type missmatch" << endl;
+                                        if($4 != nullptr){
+                                            std::string type = $4->getType();
+                                            if(type.compare("string"))
+                                                std::cout << "ERROR type missmatch, string --> " << type << std::endl;
+                                            }
                                         }
+                                        
 |   class_id_token id_token '=' Expresion      {
                                         if(classTable->get(*$1) == nullptr)
                                             cout << "ERROR class " << *$1 << "is not defined" << endl;
                                         else{
-                                        symbolTable->add(new ClassType(*$1,*$2));
-                                        std::string type = $4->getType();
-                                        if(type.compare("class"))
-                                            std::cout << "ERROR type missmatch" << endl;
+                                            if($4 != nullptr){
+                                                symbolTable->add(new ClassType(*$1,*$2));
+                                                std::string type = $4->getType();
+                                                if(type.compare("class"))
+                                                    std::cout << "ERROR class type missmatch" << endl;
+                                            }
                                         }
                                     }
 ;
@@ -261,21 +280,24 @@ Deklaracija: int_token Ids      {
                                         }
                                 }
 ;
-Dodela: id_token '=' Expresion   { Type* idType = symbolTable->get(*$1);
+Dodela: id_token '=' Expresion   { 
+                                    Type* idType = symbolTable->get(*$1);
                                        if(idType == nullptr){
                                             std::cout << "ERROR: variable " << *$1 << "is not defined." << std::endl;
                                        }else{
+                                            if($3 != nullptr){
                                                 std::string type = idType->getType();
                                                 std::string returnType = $3->getType();
                                                 if(!type.compare("int") && !returnType.compare("double")){
-                                                    std::cout << "WARRNING implicit conversion" << endl;
+                                                    std::cout << "WARRNING implicit conversion from " << returnType << " to " << type << std::endl;
                                                 }else if(!type.compare("double") && !returnType.compare("int")){
-                                                    std::cout << "WARRNING implicit conversion" << endl;
-                                                }else{
-                                                    std::cout << "ERROR type missmatch" << std::endl;
+                                                    std::cout << "WARRNING implicit conversion from " << returnType << " to " << type << std::endl;
+                                                }else if(type.compare(returnType)){
+                                                    std::cout << "ERROR type missmatch "<< type << " --> " << returnType  << std::endl;
                                                 }    
                                             }
                                         }
+                                    }
 ;
 Expresion: id_token '.' id_token '(' ')' { 
                                     Type* firstType = symbolTable->get(*$1);
@@ -299,7 +321,7 @@ Expresion: id_token '.' id_token '(' ')' {
                                                     std::cout << "ERROR: " << *$3 << " is not class method" << endl;
                                                 }else{
                                                     std::string access = field->getAccess();
-                                                        if(access.compare("private")){
+                                                        if(!access.compare("private")){
                                                             std::cout << "ERROR: " << *$3 << " is private" << endl;
                                                             $$ = nullptr;
                                                         }else{
@@ -327,7 +349,7 @@ Expresion: id_token '.' id_token '(' ')' {
                                                 std::cout << "ERROR: " << *$3 << " is not class attribute" << endl;
                                             }else{
                                                 std::string access = field->getAccess();
-                                                if(access.compare("private")){
+                                                if(!access.compare("private")){
                                                     std::cout << "ERROR: " << *$3 << " is private" << endl;
                                                     $$ = nullptr;
                                                 }else{
@@ -374,7 +396,7 @@ Expresion: id_token '.' id_token '(' ')' {
 %%
 
 int main(){
-    yydebug = 1;
+    //yydebug = 1;
     yyparse();
     return 0;
 }

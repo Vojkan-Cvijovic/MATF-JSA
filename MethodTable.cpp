@@ -16,7 +16,6 @@ Type* MethodTable::get(string id){
 		if(!id.compare((*iterator)->getId()))
 			return *iterator;
 	}
-	cout << "Error: Method "<< id << "() is not defined" << endl;
 	return nullptr;
 }
 void MethodTable::init(){
