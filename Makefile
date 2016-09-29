@@ -1,9 +1,9 @@
 CC=g++
 CFLAGS= -std=c++11
 
-analizator: lex.yy.o parser.tab.o SymbolTable.o MethodTable.o ClassTable.o ClassDef.o Trash.hpp
+analizator: lex.yy.o parser.tab.o SymbolTable.o MethodTable.o ClassTable.o ClassDef.o
 	$(CC) $(CFLAGS) -o $@ $^
-parser.tab.o: parser.tab.cpp parser.tab.hpp 
+parser.tab.o: parser.tab.cpp parser.tab.hpp
 	$(CC) $(CFLAGS) -c -o $@ $<
 parser.tab.cpp parser.tab.hpp: parser.ypp
 	bison -d -v $<

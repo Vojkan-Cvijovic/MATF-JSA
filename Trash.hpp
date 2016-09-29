@@ -1,3 +1,6 @@
+/*! \class Trash
+    \brief Container for all incializations in method block.
+*/
 #ifndef __TRASH_HPP__
 #define __TRASH_HPP__
 #include "Type.hpp"

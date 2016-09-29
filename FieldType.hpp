@@ -1,3 +1,6 @@
+/*! \class FiledType
+    \brief Abstract class for field information, wether it is atribute or method.
+*/
 #ifndef __FIELDTYPE_HPP__
 #define __FIELDTYPE_HPP__ 
 

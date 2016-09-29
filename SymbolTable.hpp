@@ -1,3 +1,6 @@
+/*! \class SymbolTable
+    \brief Class for variable type storiging search by variable id.
+*/
 #ifndef __SYMBOLTABLE_HPP__
 #define __SYMBOLTABLE_HPP__
 #include "Type.hpp"

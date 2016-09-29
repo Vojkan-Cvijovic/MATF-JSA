@@ -1,3 +1,7 @@
+/*! \class MethodTable
+    \brief Class for storage methods of java program.
+    In this class methods are stored in vector bucket.
+*/
 #ifndef __METHODTABLE_HPP__
 #define __METHODTABLE_HPP__
 #include "Type.hpp"

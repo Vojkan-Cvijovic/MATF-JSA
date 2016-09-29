@@ -1,3 +1,6 @@
+/*! \class Type
+    \brief Abstract class for storaging types.
+*/
 #ifndef __TYPE_HPP__
 #define __TYPE_HPP__
 
