@@ -15,7 +15,6 @@ FieldType* ClassDef::get(string id){
 		if(!id.compare((*iterator)->getId()))
 			return *iterator;
 	}
-	cout << "Error: Variable "<< id << " is not defined in class "<< _id << endl;
 	return nullptr;
 }
 
