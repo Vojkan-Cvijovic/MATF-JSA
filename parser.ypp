@@ -8,6 +8,7 @@
 #include "MethodTable.hpp"
 #include "FieldType.hpp"
 #include "Type.hpp"
+#include "Trash.hpp"
 #define YYDEBUG 1
 
 using namespace std;
@@ -16,6 +17,7 @@ using namespace std;
 ClassTable* classTable;
 SymbolTable* symbolTable;
 MethodTable* methodTable;
+Trash* trash;
 std::string tmp = "tmp";
 int i=0;
 
@@ -54,31 +56,28 @@ void yyerror(std::string s){
 
 
 %%
-Start: Program                 { delete methodTable;
-                                           delete symbolTable;
-                                           delete classTable; 
-                                        }
 Program: Program Class  {classTable->add($2); }
-|                                       {classTable = new ClassTable();
+|                                       { classTable = new ClassTable();
                                           symbolTable = new SymbolTable();
                                           methodTable = new MethodTable();
+                                          trash = new Trash();
                                         } 
 ;
 Class: class_token class_id_token '{' ClassBlock '}' { 
-                                                                                    $$ = new ClassDef(*$2,$4);
-                                                                                    symbolTable->deinit();
-                                                                                    methodTable->deinit();
-                                                                                 }
+                                                     $$ = new ClassDef(*$2,$4);
+                                                     symbolTable->deinit();
+                                                     methodTable->deinit();
+                                                     }
 ;                                                       
 
 ClassBlock: ClassBlock Command                            {  for(auto i = $2->begin();i != $2->end();i++)
-                                                                                    $1->push_back(*i);
-                                                                                    $$ = $1; 
-                                                                                }
-|                                                                               { $$ = new std::vector<FieldType*>();
-                                                                                   symbolTable->init();
-                                                                                   methodTable->init();
-                                                                                }
+                                                                  $1->push_back(*i);
+                                                                  $$ = $1; 
+                                                                  }
+|                                                         { $$ = new std::vector<FieldType*>();
+                                                                symbolTable->init();
+                                                                methodTable->init();
+                                                          }
 ;
 
 Command:    private_token Attribute ';'   { 
@@ -97,17 +96,14 @@ Command:    private_token Attribute ';'   {
                                              }
                                              $$ = v;
                                            }
-|           private_token Method          {  std::vector<FieldType*>* v = new std::vector<FieldType*>();
-
-
-                                                                v->push_back(new PrivateMethodFieldType($2));
-
-                                                                $$ = v;   }
+|           private_token Method          { std::vector<FieldType*>* v = new std::vector<FieldType*>();
+                                            v->push_back(new PrivateMethodFieldType($2));
+                                            $$ = v;   
+                                            }
 |            public_token Method           { std::vector<FieldType*>* v = new std::vector<FieldType*>();
-
-                                                            v->push_back(new PublicMethodFieldType($2));
-
-                                                            $$ = v;     }
+                                             v->push_back(new PublicMethodFieldType($2));
+                                             $$ = v;     
+                                             }
 ;
 
 Attribute:  int_token Ids        {  std::vector<Type*>* v = new std::vector<Type*>();
@@ -171,59 +167,61 @@ Method: MethodInt '(' ')' '{' MethodBlock '}'         {         $$ = $1;
                                                                     symbolTable->deinit();
                                                                 }
 |       MethodVoid '(' ')' '{' MethodBlock '}'        { $$ = $1;
-                                                                            std::string type = $$->getType();
-                                                                            std::string returnType = $5->getType();
-                                                                            if(type.compare(returnType))
-                                                                                std::cout << "ERROR: method return type missmatch, " << type << " <-- " << returnType << std::endl;
-                                                                            symbolTable->deinit();
-                                                                        }
+                                                        std::string type = $$->getType();
+                                                        std::string returnType = $5->getType();
+                                                        if(type.compare(returnType))
+                                                        std::cout << "ERROR: method return type missmatch, " << type << " <-- " << returnType << std::endl;
+                                                        symbolTable->deinit();
+                                                       }
 ;
 MethodInt: int_token id_token            {$$ = new IntType(*$2);
-                                                            methodTable->add($$);
-                                                            symbolTable->init();
-                                                            }
+                                          methodTable->add($$);
+                                          symbolTable->init();
+                                         }
 ;
 MethodDouble: double_token id_token      {$$ = new DoubleType(*$2);
-                                                                    methodTable->add($$);
-                                                                    symbolTable->init();
-                                                                    }
+                                          methodTable->add($$);
+                                          symbolTable->init();
+                                         }
 ;
 MethodString: string_token id_token      {$$ = new StringType(*$2);
-                                                                methodTable->add($$);
-                                                                symbolTable->init();
-                                                                }
+                                          methodTable->add($$);
+                                          symbolTable->init();
+                                         }
 ;
 MethodVoid: void_token id_token          {$$ = new VoidType(*$2);
-                                                                methodTable->add($$);
-                                                                symbolTable->init();
-                                                                }
+                                          methodTable->add($$);
+                                          symbolTable->init();
+                                         }
 ;
 
 
 MethodBlock: MethodBlock MethodCommand    { if($2 != nullptr)
-                                                                                    $$ = $2;
-                                                                               else
-                                                                                    $$ = $1;
-                                                                            }
+                                               $$ = $2;
+                                           else
+                                               $$ = $1;
+                                          }
 |                                   { $$ = new VoidType("voidTypeId");} // default value
 ;
 
 MethodCommand: return_token id_token '(' ')' ';'    { $$ = methodTable->get(*$2);
-                                                                                   if($$ == nullptr)
-                                                                                       std::cout << "ERROR: method " << *$2 << " is not defined." << std::endl;
+                                                      if($$ == nullptr)
+                                                        std::cout << "ERROR: method " << *$2 << " is not defined." << std::endl;
                                                                                  }
 |   return_token id_token ';'         { $$ = symbolTable->get(*$2);
-                                                        if($$ == nullptr)
-                                                            std::cout << "ERROR: variable " << *$2 << "is not defined." << std::endl;
+                                        if($$ == nullptr)
+                                            std::cout << "ERROR: variable " << *$2 << "is not defined." << std::endl;
                                                     }
 |   Deklaracija  ';'                               {$$ = nullptr; }
-|   Inicijalizacija ';'                              {$$ = nullptr; }
-|   Dodela ';'                                       {$$ = nullptr; }
-|   Expresion ';'                                   {$$ = nullptr; }
+|   Inicijalizacija ';'                            {$$ = nullptr; }
+|   Dodela ';'                                     {$$ = nullptr; }
+|   Expresion ';'                                  {$$ = nullptr; }
 ;
 
-Inicijalizacija: int_token id_token '=' Expresion   { 
-                                        symbolTable->add(new IntType(*$2));
+Inicijalizacija: int_token id_token '=' Expresion   {
+                                        IntType* intType = new IntType(*$2);
+                                        symbolTable->add(intType);
+                                        trash->add(intType); // add for removal
                                         if($4 != nullptr){
                                             std::string type = $4->getType();
                                             if(!type.compare("double"))
@@ -232,8 +230,10 @@ Inicijalizacija: int_token id_token '=' Expresion   {
                                                 std::cout << "ERROR type missmatch int <-- " << type << endl;
                                             }
                                         }
-|   double_token id_token '=' Expresion     { 
-                                        symbolTable->add(new DoubleType(*$2));
+|   double_token id_token '=' Expresion     {
+                                        DoubleType* doubleType = new DoubleType(*$2);
+                                        symbolTable->add(doubleType);
+                                        trash->add(doubleType);
                                         if($4 != nullptr){
                                             std::string type = $4->getType();
                                             if(!type.compare("int"))
@@ -242,8 +242,10 @@ Inicijalizacija: int_token id_token '=' Expresion   {
                                                 std::cout << "ERROR type missmatch double <-- " << type << std::endl;
                                             }
                                         }
-|   string_token id_token '=' Expresion     { 
-                                        symbolTable->add(new StringType(*$2));
+|   string_token id_token '=' Expresion     {
+                                        StringType* stringType = new StringType(*$2);
+                                        symbolTable->add(stringType);
+                                        trash->add(stringType);
                                         if($4 != nullptr){
                                             std::string type = $4->getType();
                                             if(type.compare("string"))
@@ -256,7 +258,9 @@ Inicijalizacija: int_token id_token '=' Expresion   {
                                             cout << "ERROR class " << *$1 << "is not defined" << endl;
                                         else{
                                             if($4 != nullptr){
-                                                symbolTable->add(new ClassType(*$1,*$2));
+                                                ClassType* classType = new ClassType(*$1,*$2);
+                                                symbolTable->add(classType);
+                                                trash->add(classType);
                                                 std::string type = $4->getType();
                                                 if(type.compare("class"))
                                                     std::cout << "ERROR class type missmatch" << endl;
@@ -269,18 +273,21 @@ Deklaracija: int_token Ids      {
                                     for(auto i = $2->begin();i != $2->end();i++){
                                         IntType* t = new IntType(*(*i));
                                         symbolTable->add(t);
+                                        trash->add(t);
                                         }
                                 }
 | double_token Ids              {
                                     for(auto i = $2->begin();i != $2->end();i++){
                                         DoubleType* t = new DoubleType(*(*i));
                                         symbolTable->add(t);
+                                        trash->add(t);
                                         }
                                 }
 | string_token Ids              {
                                     for(auto i = $2->begin();i != $2->end();i++){
                                         StringType* t = new StringType(*(*i));
                                         symbolTable->add(t);
+                                        trash->add(t);
                                         }
                                 }
 ;
@@ -383,7 +390,7 @@ Expresion: id_token '.' id_token '(' ')' {
                                             }
 | id_token                      { $$ = symbolTable->get(*$1);
                                         if($$ == nullptr)
-                                            std::cout << "ERROR: variable " << *$1 << "is not defined." << std::endl;
+                                            std::cout << "ERROR: variable " << *$1 << " is not defined." << std::endl;
                                      }
 | num_double_token      {  std::string id = std::to_string(i);i++;
                                         tmp.append(id);
@@ -403,5 +410,10 @@ Expresion: id_token '.' id_token '(' ')' {
 int main(){
     //yydebug = 1;
     yyparse();
+    //delete
+    delete methodTable;
+    delete symbolTable;
+    delete classTable;
+    delete trash;
     return 0;
 }
